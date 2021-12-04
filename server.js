@@ -26,39 +26,22 @@ app.get("/", (req, res, next) => {
 // ADMIN CRUD
 //GET ALL ADMINS
 app.get("/api/admins", (req, res, next) => {
-    let sql = "select * from admins"
-    let params = []
-    db.all(sql, params, (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": rows
-        })
-    });
+    const sql = "select * from admins"
+    const data = db.prepare(sql).all();
+    res.status(200).json(data)
 });
 
 //GET ADMIN BY ID
 app.get("/api/admin/:id", (req, res, next) => {
-    var sql = "select * from admins where id = ?"
-    var params = [req.params.id]
-    db.get(sql, params, (err, row) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": row
-        })
-    });
+    const sql = "select * from admins where id = ?"
+    const params = [req.params.id]
+    const data = db.prepare(sql).get(params);
+    res.status(200).json(data)
 });
 
 //CREATE NEW ADMIN
 app.post("/api/admin/", (req, res, next) => {
-    var errors = []
+    let errors = []
     if (!req.body.password) {
         errors.push("No password specified");
     }
@@ -69,91 +52,56 @@ app.post("/api/admin/", (req, res, next) => {
         res.status(400).json({ "error": errors.join(",") });
         return;
     }
-    var data = {
+    const data = {
         name: req.body.name,
         email: req.body.email,
         password: md5(req.body.password)
     }
-    var sql = 'INSERT INTO admins (name, email, password) VALUES (?,?,?)'
-    var params = [data.name, data.email, data.password]
-    db.run(sql, params, function (err, result) {
-        if (err) {
-            res.status(400).json({ "error": err.message })
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": data,
-            "id": this.lastID
-        })
-    });
+    const sql = 'INSERT INTO admins (name, email, password) VALUES (?,?,?)'
+    const params = [data.name, data.email, data.password]
+    const response = db.prepare(sql).run(params)
+    res.status(200).json(data)
 })
 
 
 //UPDATE EXISTING ADMIN BY ID
 app.patch("/api/admin/:id", (req, res, next) => {
-    var data = {
+    const params = {
         name: req.body.name,
         email: req.body.email,
         password: req.body.password ? md5(req.body.password) : null
     }
-    db.run(
-        `UPDATE admins set 
-           name = COALESCE(?,name), 
-           email = COALESCE(?,email), 
-           password = COALESCE(?,password) 
-           WHERE id = ?`,
-        [data.name, data.email, data.password, req.params.id],
-        function (err, result) {
-            if (err) {
-                res.status(400).json({ "error": res.message })
-                return;
-            }
-            res.json({
-                message: "success",
-                data: data,
-                changes: this.changes
-            })
-        });
+    const sql = `UPDATE admins set 
+    name = COALESCE(?,name), 
+    email = COALESCE(?,email), 
+    password = COALESCE(?,password) 
+    WHERE id = ?`;
+
+    const data = db.prepare(sql).run(params)
+    res.status(200).json(data);
 })
 
 /*==================================================================================================================*/
 //DEBITS (SAIDAS)
 //GET ALL DEBITS
 app.get("/api/debits", (req, res, next) => {
-    let sql = "select * from debits"
-    let params = []
-    db.all(sql, params, (err, rows) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": rows
-        })
-    });
+    const sql = "select * from debits"
+    const params = []
+    const data = db.prepare(sql).all()
+    res.status(200).json(data)
 });
 
 //GET DEBIT BY ID
 app.get("/api/debit/:id", (req, res, next) => {
-    var sql = "select * from debits where id = ?"
-    var params = [req.params.id]
-    db.get(sql, params, (err, row) => {
-        if (err) {
-            res.status(400).json({ "error": err.message });
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": row
-        })
-    });
+    const sql = "select * from debits where id = ?"
+    const params = [req.params.id]
+    const data = db.prepare(sql).get(params)
+    res.status(200).json(data);
 });
 
 //CREATE NEW DEBIT
 app.post("/api/debits/", (req, res, next) => {
-    var errors = []
+    let errors = []
     if (!req.body.name) {
         errors.push("No name specified");
     }
@@ -164,51 +112,32 @@ app.post("/api/debits/", (req, res, next) => {
         res.status(400).json({ "error": errors.join(",") });
         return;
     }
-    var data = {
+    const data = {
         name: req.body.name,
         info: req.body.info,
         valuesURI: encodeURI(JSON.stringify(req.body.valuesURI)),
     }
-    var sql = 'INSERT INTO debits (name, info, valuesURI) VALUES (?,?,?)'
-    var params = [data.name, data.info, data.valuesURI]
-    db.run(sql, params, function (err, result) {
-        if (err) {
-            res.status(400).json({ "error": err.message })
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": data,
-            "id": this.lastID
-        })
-    });
+    const sql = 'INSERT INTO debits (name, info, valuesURI) VALUES (?,?,?)'
+    const params = [data.name, data.info, data.valuesURI]
+    const response = db.prepare(sql).run(params)
+    res.status(200).json(data)
 })
 
 //UPDATE EXISTING DEBIT BY ID
 app.patch("/api/debits/:id", (req, res, next) => {
-    var data = {
+    const params = {
         name: req.body.name,
         info: req.body.info,
         valuesURI: encodeURI(JSON.stringify(req.body.valuesURI)),
     }
-    db.run(
-        `UPDATE debits set 
-           name = COALESCE(?,name), 
-           info = COALESCE(?,info), 
-           valuesURI = COALESCE(?,valuesURI) 
-           WHERE id = ?`,
-        [data.name, data.info, data.valuesURI, req.params.id],
-        function (err, result) {
-            if (err) {
-                res.status(400).json({ "error": res.message })
-                return;
-            }
-            res.json({
-                message: "success",
-                data: data,
-                changes: this.changes
-            })
-        });
+    const sql = `UPDATE debits set 
+    name = COALESCE(?,name), 
+    info = COALESCE(?,info), 
+    valuesURI = COALESCE(?,valuesURI) 
+    WHERE id = ?`
+
+    const data = db.prepare(sql).run(params);
+    res.status(200).json(data)     
 })
 
 //ENTRADAS (CREDITS)
