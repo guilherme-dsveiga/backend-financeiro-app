@@ -14,9 +14,7 @@ app.use(cors({
 
 // Server port
 // Start server
-app.listen(process.env.PORT || 5000, () => {
-    console.log("Server running on port %PORT%".replace("%PORT%", HTTP_PORT))
-});
+app.listen(process.env.PORT || 5000);
 // Root endpoint
 app.get("/", (req, res, next) => {
     res.json({ "message": "Ok" })
