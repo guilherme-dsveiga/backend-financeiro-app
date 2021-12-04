@@ -13,9 +13,8 @@ app.use(cors({
 }));
 
 // Server port
-const HTTP_PORT = 8000
 // Start server
-app.listen(HTTP_PORT, () => {
+app.listen(process.env.PORT || 5000, () => {
     console.log("Server running on port %PORT%".replace("%PORT%", HTTP_PORT))
 });
 // Root endpoint
