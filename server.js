@@ -3,10 +3,14 @@ const express = require("express")
 const app = express()
 const db = require("./database.js")
 const md5 = require("md5")
+const cors = require("cors");
 const bodyParser = require("body-parser");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors({
+    origin: '*'
+}));
 
 // Server port
 const HTTP_PORT = 8000
